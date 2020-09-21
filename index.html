@@ -15,11 +15,21 @@
         .complete {
             text-decoration: line-through;
         }
+
+        .bg-cover {
+            background-image: url('images/lauren-sauder-6GPBVYLapYQ-unsplash.jpg');
+            background-size: auto;
+            background-repeat: no-repeat;
+        }
+        .bg{
+            background-color:rgba(200,200,200,0.3);
+        }
     </style>
 </head>
 
-<body>
-    <div id="app" class="container">
+<body class="bg-cover">
+    <div id="app" class="container bg p-3 rounded">
+        <h1 class="text-light text-center"> My To do List</h1>
         <div class="input-group my-3">
             <div class="input-group-prepend">
                 <span class="input-group-text" id="label">請輸入待辨事項</span>
