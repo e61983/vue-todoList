@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh/hang">
 
 <head>
     <!-- Required meta tags -->
@@ -10,12 +10,70 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
         integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 
-    <title>Hello, world!</title>
+    <title>To do list</title>
+    <style>
+        .complete {
+            text-decoration: line-through;
+        }
+    </style>
 </head>
 
 <body>
     <div id="app" class="container">
-        <h1> {{ greeting }}</h1>
+        <div class="input-group my-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="label">請輸入待辨事項</span>
+            </div>
+            <input type="text" class="form-control" placeholder="What to do ?" aria-label="What to do ?"
+                aria-describedby="todo text" v-model="newTodoTitle" @keyup.enter="addTodo">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" id="add-button" @click="addTodo">Add</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header pb-0">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" :class="{ active : currentView === 'all' }" id="home-tab" href="#"
+                            role="tab" aria-controls="all" aria-selected="fasle"
+                            @click.prevent="currentView='all'">All</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" :class="{ active : currentView === 'doing' }" id="doing-tab" href="#"
+                            role="tab" aria-controls="doing" aria-selected="false"
+                            @click.prevent="currentView='doing'">Doing</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" :class="{ active : currentView === 'done' }" id="done-tab" href="#"
+                            role="tab" aria-controls="done" aria-selected="false"
+                            @click.prevent="currentView='done'">Done</a>
+                    </li>
+                </ul>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item" v-for="(todo, index) in todoList" :key="index" m-0>
+                    <div v-if="modifiedTodo && modifiedTodo.id === todo.id" class="input-group">
+                        <input type="text" class="form-control" :aria-label="todo.title" v-model="modifiedTodo.title"
+                            @keyup.enter="updateTodo(todo)" @change="updateTodo(todo)">
+                    </div>
+                    <div v-else class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">
+                                <input type="checkbox" v-model="todo.isComplete" :id="todo.id">
+                            </div>
+                        </div>
+                        <label class="form-control" :class="{ complete : todo.isComplete }" :aria-label="todo.title"
+                            @dblclick="modifiedTodo = todo" :for="todo.id">
+                            {{todo.title}}
+                        </label>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" id="button-addon2"
+                                @click="removeTodo(index)">Remove</button>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <!-- Optional JavaScript -->
@@ -34,9 +92,76 @@
         const vm = Vue.createApp({
             data() {
                 return {
+                    currentView: "all",
+                    newTodoTitle: "",
+                    modifiedTodo: null,
+                    todos: [
+                        {
+                            id: 1,
+                            title: 'Test Job',
+                            isComplete: false,
+                        },
+                        {
+                            id: 2,
+                            title: 'Test Job2',
+                            isComplete: true,
+                        },
+                        {
+                            id: 3,
+                            title: 'Test Job3',
+                            isComplete: false,
+                        },
+                        {
+                            id: 4,
+                            title: 'Test Job4',
+                            isComplete: true,
+                        },
+                    ],
                     greeting: 'Hello, world!',
                 }
             },
+            methods: {
+                addTodo() {
+                    console.log(this.newTodoTitle)
+                    if ("" === this.newTodoTitle.trim()) {
+                        return
+                    }
+                    this.todos.push({ id: Math.floor(Date.now()), title: this.newTodoTitle.trim(), isComplete: false });
+                    this.newTodoTitle = "";
+                },
+                removeTodo(index) {
+                    this.todos.splice(index, 1);
+                },
+                updateTodo(todo) {
+                    todo.title = this.modifiedTodo.title;
+                    this.modifiedTodo = null;
+                },
+                show(todo) {
+                    console.log(todo)
+                }
+            },
+            computed: {
+                todoList() {
+                    switch (this.currentView) {
+                        case 'all':
+                            return this.todos;
+                            break;
+                        case 'doing':
+                            return this.todos.filter(todo => {
+                                return todo.isComplete === false
+                            })
+                            break;
+                        case 'done':
+                            return this.todos.filter(todo => {
+                                return todo.isComplete === true
+                            })
+                            break;
+                        default:
+                            return this.todos;
+                            break;
+                    }
+                }
+            }
         });
         vm.mount('#app');
     </script>
